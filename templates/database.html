@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #1a1f2e;
+        color: #e2e8f0;
+    }
+
+    /* Card Styles */
+    .card {
+        border: 2px solid #2d3748;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        margin-bottom: 2rem;
+        background-color: #2d3748;
+    }
+
+    /* Table Styles */
+    .table {
+        margin-bottom: 0;
+        color: #e2e8f0;
+    }
+
+    .table th {
+        background-color: #1a1f2e;
+        border-bottom: 2px solid #4a5568;
+        color: #e2e8f0;
+        font-weight: 600;
+        padding: 12px;
+    }
+
+    .table td {
+        color: #e2e8f0;
+        border-bottom: 1px solid #4a5568;
+        padding: 12px;
+    }
+
+    /* Card Header Styles */
+    .card-header {
+        border-bottom: 2px solid rgba(255,255,255,0.1);
+        padding: 1rem;
+    }
+
+    .card-header h3 {
+        font-weight: 600;
+        color: white;
+    }
+
+    /* Main Heading */
+    .main-heading {
+        color: #e2e8f0;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+
+    /* Users Section */
+    .users-section .card-header {
+        background-color: #2563eb;
+        border-bottom: 2px solid #1d4ed8;
+    }
+
+    /* Jobs Section */
+    .jobs-section .card-header {
+        background-color: #059669;
+        border-bottom: 2px solid #047857;
+    }
+
+    /* Applications Section */
+    .applications-section .card-header {
+        background-color: #0891b2;
+        border-bottom: 2px solid #0e7490;
+    }
+
+    /* Reviews Section */
+    .reviews-section .card-header {
+        background-color: #d97706;
+        border-bottom: 2px solid #b45309;
+    }
+
+    .reviews-section .card-header h3 {
+        color: white;
+    }
+
+    /* Badge Styles */
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5em 1em;
+        font-weight: 500;
+    }
+
+    /* Button Group Styles */
+    .btn-group {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* Form Select Styles */
+    .form-select {
+        border: 1px solid #4a5568;
+        color: #e2e8f0;
+        background-color: #1a1f2e;
+    }
+
+    /* Table Hover Effect */
+    .table-hover tbody tr:hover {
+        background-color: #374151;
+    }
+
+    /* Table Striped Effect */
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(255,255,255,0.05);
+    }
+
+    .table-striped tbody tr:nth-of-type(even) {
+        background-color: rgba(255,255,255,0.02);
+    }
+
+    /* Container Background */
+    .container {
+        background-color: #1a1f2e;
+    }
+
+    /* Card Body Background */
+    .card-body {
+        background-color: #2d3748;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="main-heading">Database Administration</h2>
+        <div>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card users-section">
+        <div class="card-header text-white d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">Users</h3>
+            <span class="badge bg-light text-primary">{{ users|length }} users</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User Type</th>
+                            <th>Admin</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.user_type }}</td>
+                            <td>{{ "Yes" if user.is_admin else "No" }}</td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                {% if not user.is_admin %}
+                                <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" 
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to delete this user? This will also delete all their jobs and applications.')">
+                                    Delete
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs Table -->
+    <div class="card jobs-section">
+        <div class="card-header text-white d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">Jobs</h3>
+            <span class="badge bg-light text-success">{{ jobs|length }} jobs</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Company</th>
+                            <th>Location</th>
+                            <th>Deadline</th>
+                            <th>Employer</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td>{{ job.id }}</td>
+                            <td>{{ job.title }}</td>
+                            <td>{{ job.company }}</td>
+                            <td>{{ job.location }}</td>
+                            <td>{{ job.deadline.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ job.employer.name }}</td>
+                            <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('view_applications', job_id=job.id) }}" 
+                                       class="btn btn-info btn-sm">
+                                        View Applications
+                                    </a>
+                                    <a href="{{ url_for('admin_edit_job', job_id=job.id) }}" 
+                                       class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a>
+                                    <a href="{{ url_for('admin_delete_job', job_id=job.id) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete this job? This will also delete all applications for this job.')">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="card applications-section">
+        <div class="card-header text-white d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">Applications</h3>
+            <span class="badge bg-light text-info">{{ applications|length }} applications</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Applicant</th>
+                            <th>Email</th>
+                            <th>Job</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>{{ application.id }}</td>
+                            <td>{{ application.name }}</td>
+                            <td>{{ application.email }}</td>
+                            <td>{{ application.job.title }}</td>
+                            <td>{{ application.job.company }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('update_application_status', application_id=application.id) }}" class="d-inline">
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="Pending" {% if application.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Accepted" {% if application.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                                        <option value="Rejected" {% if application.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>{{ application.applied_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if application.cv_file %}
+                                    <a href="{{ url_for('view_cv', filename=application.cv_file) }}" 
+                                       class="btn btn-primary btn-sm" target="_blank">
+                                        View CV
+                                    </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('admin_delete_application', application_id=application.id) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete this application?')">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Table -->
+    <div class="card reviews-section">
+        <div class="card-header text-dark d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">Reviews</h3>
+            <span class="badge bg-light text-warning">{{ reviews|length }} reviews</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for review in reviews %}
+                        <tr>
+                            <td>{{ review.id }}</td>
+                            <td>{{ review.name }}</td>
+                            <td>{{ "⭐" * review.rating }}</td>
+                            <td>{{ review.comment }}</td>
+                            <td>{{ review.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin_delete_review', review_id=review.id) }}" 
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to delete this review?')">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

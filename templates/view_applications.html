@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}View Applications - Job Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Applications for {{ job.title }}</h2>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+            <p class="text-muted">
+                Company: {{ job.company }} | Location: {{ job.location }} | 
+                Deadline: {{ job.deadline.strftime('%Y-%m-%d') }}
+            </p>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if applications %}
+        <div class="row">
+            {% for application in applications %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ application.name }}</h5>
+                            <span class="badge {% if application.status == 'Pending' %}bg-warning{% elif application.status == 'Accepted' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ application.status }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Email:</strong> {{ application.email }}</p>
+                            <p><strong>Applied:</strong> {{ application.applied_date.strftime('%Y-%m-%d') }}</p>
+                            
+                            <div class="mb-3">
+                                <h6>Cover Letter:</h6>
+                                <p class="card-text">{{ application.cover_letter }}</p>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('view_cv', filename=application.cv_file) }}" class="btn btn-info btn-sm" target="_blank">
+                                    <i class="bi bi-file-earmark-text me-1"></i>View CV
+                                </a>
+                                
+                                <div class="btn-group">
+                                    <form action="{{ url_for('update_application_status', application_id=application.id) }}" method="POST" class="d-inline">
+                                        <input type="hidden" name="status" value="Accepted">
+                                        <button type="submit" class="btn btn-success btn-sm me-1" {% if application.status == 'Accepted' %}disabled{% endif %}>
+                                            <i class="bi bi-check-circle me-1"></i>Accept
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('update_application_status', application_id=application.id) }}" method="POST" class="d-inline">
+                                        <input type="hidden" name="status" value="Rejected">
+                                        <button type="submit" class="btn btn-danger btn-sm" {% if application.status == 'Rejected' %}disabled{% endif %}>
+                                            <i class="bi bi-x-circle me-1"></i>Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>No applications have been submitted for this job yet.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %} 

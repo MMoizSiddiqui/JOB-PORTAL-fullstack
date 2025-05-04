@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Jobs - Job Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Auth Buttons -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-end">
+            {% if session.get('user_id') %}
+                <div class="btn-group">
+                    {% if session.get('user_type') == 'job_seeker' %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-circle"></i> My Applications
+                        </a>
+                    {% elif session.get('user_type') == 'employer' %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            {% else %}
+                <div class="btn-group">
+                    <a href="{{ url_for('auth', type='job_seeker') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-person"></i> Job Seeker Login
+                    </a>
+                    <a href="{{ url_for('auth', type='employer') }}" class="btn btn-outline-success">
+                        <i class="bi bi-building"></i> Employer Login
+                    </a>
+                    <a href="{{ url_for('auth') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Sign Up
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Page Title -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-primary mb-2">Find Your Dream Job</h1>
+            <p class="lead text-muted fw-medium">Search through thousands of job opportunities</p>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-5">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <form action="{{ url_for('jobs') }}" method="GET" class="search-form" id="searchForm">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search search-icon"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                           placeholder="Search jobs by title, company, or location..." 
+                           value="{{ search_query }}"
+                           id="searchInput"
+                           aria-label="Search jobs">
+                    <button type="submit" class="btn btn-primary px-4 fw-medium">
+                        Search Jobs
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Jobs List -->
+    <div class="row" id="jobsList">
+        {% if jobs %}
+            {% for job in jobs %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 job-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ job.title }}</h5>
+                            <div class="d-flex align-items-center">
+                                {% if session.get('user_id') and session.get('user_type') == 'job_seeker' %}
+                                    {% if job.id|string in applied_jobs %}
+                                        <span class="badge bg-success me-2">
+                                            <i class="bi bi-check-circle me-1"></i>Applied
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-primary me-2">
+                                            <i class="bi bi-circle me-1"></i>Open
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                                <span class="badge bg-light text-dark">
+                                    {% set days = (job.deadline - now).days %}
+                                    {% if days > 0 %}
+                                        {{ days }} days left
+                                    {% else %}
+                                        Closing today
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <h6 class="card-subtitle mb-3 company-name">
+                            <i class="bi bi-building me-1"></i>{{ job.company }}
+                        </h6>
+                        
+                        <div class="job-details mb-3">
+                            <p class="mb-2">
+                                <i class="bi bi-geo-alt me-2"></i>{{ job.location }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="bi bi-calendar me-2"></i>Deadline: {{ job.deadline.strftime('%b %d, %Y') }}
+                            </p>
+                            <p class="mb-0">
+                                <i class="bi bi-clock me-2"></i>Posted: {{ job.created_at.strftime('%b %d, %Y') }}
+                            </p>
+                        </div>
+                        
+                        <div class="card-text description-preview mb-3">
+                            {{ job.description[:200] }}{% if job.description|length > 200 %}...{% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            {% if not session.get('user_id') %}
+                                <a href="{{ url_for('auth', type='job_seeker') }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-person me-1"></i>Login to Apply
+                                </a>
+                            {% elif session.get('user_type') == 'job_seeker' %}
+                                {% if job.id|string in applied_jobs %}
+                                    <button class="btn btn-outline-success" disabled>
+                                        <i class="bi bi-check-circle me-1"></i>Already Applied
+                                    </button>
+                                {% else %}
+                                    <button onclick="openApplicationWindow('{{ job.id }}', '{{ job.title }}')" class="btn btn-primary">
+                                        <i class="bi bi-send me-1"></i>Apply Now
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                            <button class="btn btn-link text-muted" 
+                                    onclick="toggleDescription(this)" 
+                                    data-bs-toggle="tooltip" 
+                                    title="Show full description"
+                                    aria-expanded="false">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    {% if search_query %}
+                        <i class="bi bi-info-circle me-2"></i>No jobs found matching your search criteria
+                        <div class="mt-2">
+                            <a href="{{ url_for('jobs') }}" class="btn btn-outline-primary btn-sm">
+                                Clear Search
+                            </a>
+                        </div>
+                    {% else %}
+                        <i class="bi bi-info-circle me-2"></i>No jobs available at the moment
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-color: #2c3e50;  /* Changed from blue to a sophisticated dark blue-gray */
+    --primary-hover: #34495e;  /* Darker shade for hover states */
+    --success-color: #27ae60;  /* Updated success color */
+    --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --card-hover-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    --text-white: #ffffff;
+    --text-light: rgba(255, 255, 255, 0.9);
+    --text-lighter: rgba(255, 255, 255, 0.7);
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.lead {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+.search-form {
+    background: transparent;
+    margin-bottom: 2rem;
+}
+
+.search-form .input-group {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.search-form .input-group-text {
+    border-color: #e5e7eb;
+    padding: 0.8rem 1rem;
+    color: var(--text-secondary);
+}
+
+.search-icon {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+}
+
+.search-form .form-control {
+    border-color: #e5e7eb;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.search-form .form-control::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.search-form .form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+}
+
+.search-form .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-form .btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.job-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    overflow: hidden;
+    position: relative;
+}
+
+.job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(44, 62, 80, 0.1));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.job-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.job-card:hover::before {
+    opacity: 1;
+}
+
+.job-card .card-body {
+    position: relative;
+    z-index: 1;
+}
+
+.card-title {
+    color: var(--text-white);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.company-name {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.job-details {
+    color: var(--text-lighter);
+    font-size: 0.95rem;
+}
+
+.job-details i {
+    color: var(--text-light);
+}
+
+.description-preview {
+    color: var(--text-light);
+    line-height: 1.6;
+    font-size: 0.95rem;
+    max-height: 100px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.badge.bg-success {
+    background-color: var(--success-color) !important;
+    color: var(--text-white);
+}
+
+.badge.bg-primary {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: var(--text-white);
+}
+
+.badge.bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-white) !important;
+}
+
+.btn-link.text-muted {
+    color: var(--text-lighter) !important;
+}
+
+.btn-link.text-muted:hover {
+    color: var(--text-white) !important;
+}
+
+.btn-outline-primary {
+    color: var(--text-white);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-outline-primary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-white);
+    color: var(--text-white);
+}
+
+.btn-outline-success:disabled {
+    color: var(--text-light);
+    border-color: rgba(255, 255, 255, 0.3);
+    opacity: 0.8;
+}
+
+.btn:disabled {
+    cursor: default;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.job-card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .search-form .input-group {
+        flex-direction: column;
+    }
+    
+    .search-form .btn-primary {
+        margin-top: 1rem;
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+
+function openApplicationWindow(jobId, jobTitle) {
+    var width = 800;
+    var height = 800;
+    var left = (screen.width - width) / 2;
+    var top = (screen.height - height) / 2;
+    
+    window.open(
+        "{{ url_for('apply_job', job_id=0) }}".replace('0', jobId),
+        'Apply for ' + jobTitle,
+        'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',resizable=yes,scrollbars=yes'
+    );
+}
+
+function toggleDescription(button) {
+    const card = button.closest('.card');
+    const description = card.querySelector('.description-preview');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    
+    if (!isExpanded) {
+        description.style.maxHeight = 'none';
+        button.innerHTML = '<i class="bi bi-chevron-up"></i>';
+        button.setAttribute('aria-expanded', 'true');
+        button.setAttribute('title', 'Show less');
+    } else {
+        description.style.maxHeight = null;
+        button.innerHTML = '<i class="bi bi-chevron-down"></i>';
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('title', 'Show full description');
+    }
+}
+
+function handleCardKeyPress(event, jobId, jobTitle) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openApplicationWindow(jobId, jobTitle);
+    }
+}
+
+// Show loading state when submitting form
+document.getElementById('searchForm').addEventListener('submit', function() {
+    document.getElementById('loadingState').classList.remove('d-none');
+    document.getElementById('jobsList').style.opacity = '0.5';
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Login/Signup - Job Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="authTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link {% if not user_type %}active{% endif %}" id="login-tab" data-bs-toggle="tab" href="#login" role="tab">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if user_type %}active{% endif %}" id="signup-tab" data-bs-toggle="tab" href="#signup" role="tab">Sign Up</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="authTabsContent">
+                        <!-- Login Form -->
+                        <div class="tab-pane fade {% if not user_type %}show active{% endif %}" id="login" role="tabpanel">
+                            <form method="POST" action="{{ url_for('auth') }}">
+                                <input type="hidden" name="login" value="1">
+                                <div class="mb-3">
+                                    <label for="login_email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="login_email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="login_password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="login_password" name="password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="login_user_type" class="form-label">I am a</label>
+                                    <select class="form-select" id="login_user_type" name="user_type" required>
+                                        <option value="job_seeker" {% if user_type == 'job_seeker' %}selected{% endif %}>Job Seeker</option>
+                                        <option value="employer" {% if user_type == 'employer' %}selected{% endif %}>Employer</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Login</button>
+                            </form>
+                        </div>
+
+                        <!-- Signup Form -->
+                        <div class="tab-pane fade {% if user_type %}show active{% endif %}" id="signup" role="tabpanel">
+                            <form method="POST" action="{{ url_for('auth') }}">
+                                <input type="hidden" name="signup" value="1">
+                                <div class="mb-3">
+                                    <label for="signup_name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="signup_name" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="signup_email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="signup_email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="signup_password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="signup_password" name="password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="signup_user_type" class="form-label">I am a</label>
+                                    <select class="form-select" id="signup_user_type" name="user_type" required>
+                                        <option value="job_seeker" {% if user_type == 'job_seeker' %}selected{% endif %}>Job Seeker</option>
+                                        <option value="employer" {% if user_type == 'employer' %}selected{% endif %}>Employer</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #0d6efd;
+        color: white;
+    }
+    .nav-tabs .nav-link {
+        color: #6c757d;
+    }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        font-weight: 500;
+    }
+</style>
+{% endblock %} 

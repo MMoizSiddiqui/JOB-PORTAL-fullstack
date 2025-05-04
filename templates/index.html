@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Job Vista{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <div class="text-start mb-4">
+                <h1 class="hero-title">JOB VISTA</h1>
+                <p class="hero-subtitle">Your Gateway to Career Success</p>
+            </div>
+            <h2 class="display-6 mb-4">Find Your Dream Job or Top Talent</h2>
+            <p class="lead mb-4">Connect with opportunities that match your skills and ambitions. Whether you're looking for a job or looking to hire, we've got you covered.</p>
+            
+            {% if not session.get('user_id') %}
+            <div class="d-grid gap-3 d-sm-flex justify-content-center">
+                <a href="{{ url_for('auth', type='job_seeker') }}" class="btn btn-primary btn-lg px-4 shadow-sm">
+                    <i class="bi bi-person-badge me-2"></i>I'm a Job Seeker
+                </a>
+                <a href="{{ url_for('auth', type='employer') }}" class="btn btn-outline-primary btn-lg px-4 shadow-sm">
+                    <i class="bi bi-building me-2"></i>I'm an Employer
+                </a>
+            </div>
+            {% else %}
+            <div class="d-grid gap-3 d-sm-flex justify-content-center">
+                {% if session.get('user_type') == 'job_seeker' %}
+                <a href="{{ url_for('jobs') }}" class="btn btn-primary btn-lg px-4 shadow-sm">
+                    <i class="bi bi-search me-2"></i>Browse Jobs
+                </a>
+                {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 shadow-sm">
+                    <i class="bi bi-building me-2"></i>Go to Dashboard
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden feature-card">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h3>Find Opportunities</h3>
+                            <p class="text-muted mb-0">Browse through thousands of job listings from top companies.</p>
+                        </div>
+                        <div class="col-12">
+                            <div class="feature-icon bg-success bg-gradient text-white rounded-3 mb-3">
+                                <i class="bi bi-person-check"></i>
+                            </div>
+                            <h3>Easy Application</h3>
+                            <p class="text-muted mb-0">Apply to jobs with just a few clicks and track your applications.</p>
+                        </div>
+                        <div class="col-12">
+                            <div class="feature-icon bg-info bg-gradient text-white rounded-3 mb-3">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <h3>For Employers</h3>
+                            <p class="text-muted mb-0">Post jobs and find the perfect candidates for your company.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section with Increased Spacing -->
+    <div class="row mt-7 pt-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5 fw-bold text-gradient">Why Choose JOB VISTA?</h2>
+            <p class="lead text-muted mb-5">Experience the difference with our platform</p>
+        </div>
+        <div class="col-md-4 mb-5">
+            <div class="card h-100 border-0 shadow-sm hover-card bg-gradient-light">
+                <div class="card-body text-center p-5">
+                    <div class="feature-icon-lg bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4 class="text-primary mb-3">Secure Platform</h4>
+                    <p class="text-muted mb-0">Your data is protected with industry-standard security measures. We ensure your information remains confidential and secure.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-5">
+            <div class="card h-100 border-0 shadow-sm hover-card bg-gradient-light">
+                <div class="card-body text-center p-5">
+                    <div class="feature-icon-lg bg-success bg-gradient text-white rounded-circle mb-4 mx-auto">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4 class="text-success mb-3">Smart Matching</h4>
+                    <p class="text-muted mb-0">Our advanced algorithms match you with the most suitable opportunities based on your skills and preferences.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-5">
+            <div class="card h-100 border-0 shadow-sm hover-card bg-gradient-light">
+                <div class="card-body text-center p-5">
+                    <div class="feature-icon-lg bg-info bg-gradient text-white rounded-circle mb-4 mx-auto">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <h4 class="text-info mb-3">24/7 Support</h4>
+                    <p class="text-muted mb-0">Our dedicated support team is always here to help you with any questions or concerns you may have.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section with Enhanced Design -->
+    <div class="row mt-7 py-6 bg-gradient-dark rounded-4 position-relative overflow-hidden">
+        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
+            <div class="position-absolute top-50 start-0 w-100 h-50 bg-primary opacity-10"></div>
+        </div>
+        <div class="col-md-3 text-center position-relative">
+            <h2 class="display-3 fw-bold text-white mb-2">1000+</h2>
+            <p class="h5 text-light">Active Jobs</p>
+            <div class="stat-icon">
+                <i class="bi bi-briefcase text-primary opacity-25 display-1"></i>
+            </div>
+        </div>
+        <div class="col-md-3 text-center position-relative">
+            <h2 class="display-3 fw-bold text-white mb-2">500+</h2>
+            <p class="h5 text-light">Companies</p>
+            <div class="stat-icon">
+                <i class="bi bi-building text-success opacity-25 display-1"></i>
+            </div>
+        </div>
+        <div class="col-md-3 text-center position-relative">
+            <h2 class="display-3 fw-bold text-white mb-2">10K+</h2>
+            <p class="h5 text-light">Job Seekers</p>
+            <div class="stat-icon">
+                <i class="bi bi-people text-info opacity-25 display-1"></i>
+            </div>
+        </div>
+        <div class="col-md-3 text-center position-relative">
+            <h2 class="display-3 fw-bold text-white mb-2">95%</h2>
+            <p class="h5 text-light">Success Rate</p>
+            <div class="stat-icon">
+                <i class="bi bi-graph-up-arrow text-warning opacity-25 display-1"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="row mt-7 mb-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5 fw-bold text-gradient">Popular Categories</h2>
+            <p class="lead text-muted mb-5">Explore opportunities in trending industries</p>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="category-card bg-primary bg-opacity-10 rounded-4 p-4 text-center hover-lift">
+                <i class="bi bi-code-square display-4 text-primary mb-3"></i>
+                <h4 class="text-primary">Technology</h4>
+                <p class="text-muted">Software, IT, Data</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="category-card bg-success bg-opacity-10 rounded-4 p-4 text-center hover-lift">
+                <i class="bi bi-bank display-4 text-success mb-3"></i>
+                <h4 class="text-success">Finance</h4>
+                <p class="text-muted">Banking, Investment</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="category-card bg-info bg-opacity-10 rounded-4 p-4 text-center hover-lift">
+                <i class="bi bi-basket display-4 text-info mb-3"></i>
+                <h4 class="text-info">Marketing</h4>
+                <p class="text-muted">Digital, Brand</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="category-card bg-warning bg-opacity-10 rounded-4 p-4 text-center hover-lift">
+                <i class="bi bi-brush display-4 text-warning mb-3"></i>
+                <h4 class="text-warning">Design</h4>
+                <p class="text-muted">UI/UX, Graphics</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .mt-7 {
+        margin-top: 7rem !important;
+    }
+    .py-6 {
+        padding-top: 6rem !important;
+        padding-bottom: 6rem !important;
+    }
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    .feature-icon-lg {
+        width: 80px;
+        height: 80px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+    }
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+    }
+    .display-1 {
+        font-size: 4rem;
+        letter-spacing: 2px;
+        background: linear-gradient(45deg, #007bff, #00bfff);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn {
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 30px rgba(0,0,0,0.1) !important;
+    }
+    .text-gradient {
+        background: linear-gradient(45deg, #007bff, #00bfff);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .bg-gradient-light {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    }
+    .bg-gradient-dark {
+        background: linear-gradient(145deg, #2c3e50, #3498db);
+    }
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .category-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .stat-icon {
+        position: absolute;
+        bottom: -20px;
+        right: -20px;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+    .feature-card {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    }
+</style>
+{% endblock %} 

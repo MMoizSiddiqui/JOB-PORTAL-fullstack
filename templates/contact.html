@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+
+{% block title %}About Us & Contact - Job Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Founders Section -->
+    <div class="founders-section text-center mb-5 fade-in" style="animation-delay: 0s;">
+        <h2 class="section-title mb-5">Meet Our Team</h2>
+        <div class="row justify-content-center">
+            <!-- CEO -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="founder-card h-100">
+                    <div class="card-body p-4">
+                        <div class="founder-image mb-4">
+                            <div class="image-wrapper">
+                                <img src="{{ url_for('static', filename='images/image.png') }}" alt="M.Moiz Siddiqui" class="rounded-circle">
+                            </div>
+                        </div>
+                        <h4 class="mb-2">M.Moiz Siddiqui</h4>
+                        <p class="text-sky mb-2">Founder & CEO</p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-mortarboard me-2"></i>Student at FAST National University
+                        </p>
+                        <p class="founder-intro mb-4">
+                            A passionate software engineer and entrepreneur dedicated to revolutionizing the job search experience.
+                        </p>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/muhammad-moiz-siddiqui-99357229a" target="_blank" class="btn btn-glass btn-sm">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            <a href="mailto:k232080@nu.edu.pk" class="btn btn-glass btn-sm ms-2">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Co-founder 1 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="founder-card h-100">
+                    <div class="card-body p-4">
+                        <div class="founder-image mb-4">
+                            <div class="image-wrapper">
+                                <img src="{{ url_for('static', filename='images/pfp.jpg') }}" alt="Bhoomika" class="rounded-circle">
+                            </div>
+                        </div>
+                        <h4 class="mb-2">Bhoomika</h4>
+                        <p class="text-sky mb-2">Co-founder & CTO</p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-mortarboard me-2"></i>Student at FAST National University
+                        </p>
+                        <p class="founder-intro mb-4">
+                            Technology enthusiast with expertise in building scalable solutions and innovative platforms.
+                        </p>
+                        <div class="social-links">
+                            <a href="#" target="_blank" class="btn btn-glass btn-sm">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            <a href="mailto:k232080@nu.edu.pk" class="btn btn-glass btn-sm ms-2">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Co-founder 2 -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="founder-card h-100">
+                    <div class="card-body p-4">
+                        <div class="founder-image mb-4">
+                            <div class="image-wrapper">
+                                <img src="{{ url_for('static', filename='images/pfp.jpg') }}" alt="Soha" class="rounded-circle">
+                            </div>
+                        </div>
+                        <h4 class="mb-2">Soha</h4>
+                        <p class="text-sky mb-2">Co-founder & COO</p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-mortarboard me-2"></i>Student at FAST National University
+                        </p>
+                        <p class="founder-intro mb-4">
+                            Operations expert focused on creating seamless experiences and strategic growth.
+                        </p>
+                        <div class="social-links">
+                            <a href="#" target="_blank" class="btn btn-glass btn-sm">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            <a href="mailto:k232080@nu.edu.pk" class="btn btn-glass btn-sm ms-2">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="card reviews-card fade-in" style="animation-delay: 0.2s;">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Reviews</h4>
+                    <div class="review-form mb-4">
+                        <form id="reviewForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="reviewName" class="form-label small">Name</label>
+                                <input type="text" class="form-control form-control-sm" id="reviewName" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small d-block">Rating</label>
+                                <div class="rating">
+                                    {% for i in range(5, 0, -1) %}
+                                    <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" required>
+                                    <label for="star{{ i }}" title="{{ i }} stars">
+                                        <i class="bi bi-star-fill"></i>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reviewComment" class="form-label small">Comment</label>
+                                <textarea class="form-control form-control-sm" id="reviewComment" name="comment" rows="2" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Submit Review</button>
+                        </form>
+                    </div>
+
+                    <div class="reviews-list">
+                        <h6 class="mb-3 text-sky">Recent Reviews</h6>
+                        {% if reviews %}
+                            {% for review in reviews %}
+                            <div class="review-item mb-3 p-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="fw-medium">{{ review.name }}</small>
+                                    <small class="text-muted">{{ review.date.strftime('%b %d, %Y') }}</small>
+                                </div>
+                                <div class="rating-display small mb-1">
+                                    {% for i in range(review.rating) %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - review.rating) %}
+                                        <i class="bi bi-star text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                                <p class="mb-0 small">{{ review.comment }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted small">No reviews yet. Be the first to review!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card contact-card fade-in" style="animation-delay: 0.4s;">
+                <div class="card-body p-4 text-center">
+                    <h4 class="card-title mb-4">Contact Us</h4>
+                    <a href="mailto:k232080@nu.edu.pk" class="contact-email">
+                        <i class="bi bi-envelope-fill me-2"></i>k232080@nu.edu.pk
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-dark: #1e293b;
+    --primary-light: #ffffff;
+    --accent-blue: #3b82f6;
+    --text-muted: #94a3b8;
+    --card-bg: #1e293b;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.section-title {
+    color: var(--primary-light);
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.founders-section {
+    margin-bottom: 4rem;
+}
+
+.founder-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.founder-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.image-wrapper {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--accent-blue), #60a5fa);
+}
+
+.founder-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--card-bg);
+}
+
+.founder-card h4 {
+    color: var(--primary-light);
+    font-weight: 600;
+}
+
+.text-sky {
+    color: var(--accent-blue);
+    font-weight: 500;
+}
+
+.founder-intro {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.social-links .btn-glass {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--primary-light);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.social-links .btn-glass:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+}
+
+.contact-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+}
+
+.reviews-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.contact-email {
+    color: var(--accent-blue);
+    font-size: 1.25rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.contact-email:hover {
+    color: #60a5fa;
+    transform: translateY(-2px);
+}
+
+.form-control {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--primary-light);
+    font-size: 0.875rem;
+}
+
+.form-control:focus {
+    background: var(--input-bg);
+    border-color: var(--accent-blue);
+    box-shadow: none;
+    color: var(--primary-light);
+}
+
+.form-label {
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+
+.rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.2);
+    padding: 0 2px;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+    color: #ffc107;
+}
+
+.review-item {
+    background: var(--input-bg);
+    border-radius: 6px;
+    border: 1px solid var(--input-border);
+}
+
+.btn-primary {
+    background: var(--accent-blue);
+    border: none;
+    font-size: 0.875rem;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+}
+
+.rating-display {
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .social-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .social-links .btn-glass {
+        margin: 0 !important;
+    }
+}
+</style>
+
+<script>
+document.getElementById('reviewForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch("{{ url_for('add_review') }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting review. Please try again.');
+    });
+});
+</script>
+{% endblock %} 
