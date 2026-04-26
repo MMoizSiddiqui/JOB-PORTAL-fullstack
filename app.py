@@ -48,13 +48,26 @@ def after_request(response):
     return response
 
 
+from urllib.parse import urlparse
+from flask import request
+
+from urllib.parse import urlparse
+from flask import request, redirect
+
 def safe_redirect(url, fallback='/'):
-    """Only redirect to URLs on the same host to prevent Open Redirect attacks."""
-    if url:
-        parsed = urlparse(url)
-        # Allow only relative URLs (no netloc means same-origin)
-        if not parsed.netloc:
-            return redirect(url)
+    if not url:
+        return redirect(fallback)
+
+    parsed = urlparse(url)
+
+    # Allow ONLY clean relative paths
+    if parsed.scheme == '' and parsed.netloc == '' and url.startswith('/'):
+        return redirect(url)
+
+    # Allow same host URLs
+    if parsed.netloc == request.host:
+        return redirect(url)
+
     return redirect(fallback)
 
 # Database Models
