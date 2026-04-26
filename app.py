@@ -6,6 +6,8 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from sqlalchemy import or_
+from urllib.parse import urlparse 
+
 
 # Load environment variables
 load_dotenv()
@@ -44,6 +46,16 @@ def after_request(response):
         db.session.rollback()
         print(f"Error committing changes: {str(e)}")
     return response
+
+
+def safe_redirect(url, fallback='/'):
+    """Only redirect to URLs on the same host to prevent Open Redirect attacks."""
+    if url:
+        parsed = urlparse(url)
+        # Allow only relative URLs (no netloc means same-origin)
+        if not parsed.netloc:
+            return redirect(url)
+    return redirect(fallback)
 
 # Database Models
 class User(db.Model):
@@ -616,32 +628,37 @@ def update_application_status(application_id):
         new_status = request.form.get('status')
         if new_status not in ['Pending', 'Accepted', 'Rejected']:
             flash('Invalid status value.', 'error')
-            return redirect(request.referrer)
+          
+            return safe_redirect(request.referrer, fallback=url_for('dashboard'))
 
         # Get the application
         application = Application.query.get(application_id)
         
         if not application:
             flash('Application not found.', 'error')
-            return redirect(request.referrer)
+         
+            return safe_redirect(request.referrer, fallback=url_for('dashboard'))
             
         # Check if user has permission (admin or employer of the job)
         job = get_job_by_id(application.job_id)
         if not (is_admin() or (session.get('user_type') == 'employer' and str(job.employer_id) == session.get('user_id'))):
             flash('You do not have permission to update this application.', 'error')
-            return redirect(request.referrer)
+           
+            return safe_redirect(request.referrer, fallback=url_for('dashboard'))
 
         # Update the application status
         application.status = new_status
         db.session.commit()
 
         flash(f'Application status updated to {new_status}.', 'success')
-        return redirect(request.referrer)
+        
+        return safe_redirect(request.referrer, fallback=url_for('dashboard'))
 
     except Exception as e:
         print(f"Error updating application status: {e}")
         flash('An error occurred while updating the application status.', 'error')
-        return redirect(request.referrer)
+       
+        return safe_redirect(request.referrer, fallback=url_for('dashboard'))
 
 @app.route('/view_cv/<filename>')
 def view_cv(filename):
@@ -942,9 +959,12 @@ def is_admin():
     return session.get('user_id') and session.get('is_admin', False)
 
 if __name__ == '__main__':
-    app.run(debug=True) 
-
-
+    app.run(debug=False)  
 
 #Email: admin@jobportal.com
 #Password: admin123
+
+#ngrok config add-authtoken $YOUR_AUTHTOKEN     #get this from your ngrok account online
+#then on ngrok terminala on your host  run ngrok http $portnumber  #for example ngrok http 5000
+#then you will get a https url forwarding ....
+#then you can use this url to access your application from anywhere
