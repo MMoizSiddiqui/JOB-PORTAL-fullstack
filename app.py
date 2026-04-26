@@ -49,10 +49,7 @@ def after_request(response):
 
 
 from urllib.parse import urlparse
-from flask import request
-
-from urllib.parse import urlparse
-from flask import request, redirect
+from flask import request, redirect, url_for
 
 def safe_redirect(url, fallback='/'):
     if not url:
@@ -60,15 +57,21 @@ def safe_redirect(url, fallback='/'):
 
     parsed = urlparse(url)
 
-    # Allow ONLY clean relative paths
+    safe_url = None
+
+    # Allow clean relative paths
     if parsed.scheme == '' and parsed.netloc == '' and url.startswith('/'):
-        return redirect(url)
+        safe_url = url
 
     # Allow same host URLs
-    if parsed.netloc == request.host:
-        return redirect(url)
+    elif parsed.netloc == request.host:
+        safe_url = url
 
-    return redirect(fallback)
+    # Fallback if unsafe
+    if not safe_url:
+        safe_url = fallback
+
+    return redirect(safe_url)
 
 # Database Models
 class User(db.Model):
