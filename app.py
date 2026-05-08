@@ -13,16 +13,32 @@ from urllib.parse import urlparse
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+secret_key = os.environ.get('SECRET_KEY')
+if not secret_key:
+    # Use a per-process random key if not provided (avoids hardcoded secrets).
+    # For production, always set SECRET_KEY in the host environment.
+    secret_key = os.urandom(32)
+app.config['SECRET_KEY'] = secret_key
 app.config['JSON_AS_ASCII'] = False
 app.config['INSTANCE_PATH'] = os.path.dirname(os.path.abspath(__file__))  # Prevent instance folder creation
 
 # Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(os.path.abspath(__file__)), 'job_portal.db')}"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.environ.get('DATA_DIR', BASE_DIR)
+os.makedirs(DATA_DIR, exist_ok=True)
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Render/Railway often provide postgres via DATABASE_URL
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(DATA_DIR, 'job_portal.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # File upload settings
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+UPLOAD_FOLDER = os.path.join(DATA_DIR, 'uploads')
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -235,6 +251,10 @@ def index():
         if not user:
             session.clear()
     return render_template('index.html')
+
+@app.get('/healthz')
+def healthz():
+    return "ok", 200
 
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
@@ -951,12 +971,18 @@ def admin_delete_review(review_id):
 def create_admin_user():
     """Create admin user if it doesn't exist"""
     try:
-        admin = get_user_by_email('admin@jobportal.com')
+        admin_email = os.environ.get('ADMIN_EMAIL')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+
+        if not admin_email or not admin_password:
+            return None
+
+        admin = get_user_by_email(admin_email)
         if not admin:
             admin = User(
                 name='Admin',
-                email='admin@jobportal.com',
-                password=generate_password_hash('admin123'),
+                email=admin_email,
+                password=generate_password_hash(admin_password),
                 user_type='admin',
                 is_admin=True,
                 created_at=datetime.utcnow()
@@ -976,9 +1002,6 @@ def is_admin():
 
 if __name__ == '__main__':
     app.run(debug=False)  
-
-#Email: admin@jobportal.com
-#Password: admin123
 
 #ngrok config add-authtoken $YOUR_AUTHTOKEN     #get this from your ngrok account online
 #then on ngrok terminala on your host  run ngrok http $portnumber  #for example ngrok http 5000
